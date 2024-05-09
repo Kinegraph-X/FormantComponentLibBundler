@@ -1,0 +1,13 @@
+{
+	"content" : [
+		"jsCore",
+		"jsLexicalTools",
+		"jsStyleManager",
+		"jsComponentLib"
+	],
+	"UIpackage" : "all",
+	"ressourcePath" : [
+	
+	],
+	"liveReloadspecificPort" : 357730
+}
