@@ -13,7 +13,7 @@ module.exports = function (grunt) {
 //	console.log(grunt.cli.options, process.argv);
 
 	grunt.file.setBase('../');
-	const selfPath = '_frameworkComponentsBuild';
+	const selfPath = '_formantComponentLibBundler-master';
 	const projectPath = 'tasks';
 	const destPath = 'build';
 
