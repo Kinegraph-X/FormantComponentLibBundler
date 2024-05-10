@@ -14,6 +14,7 @@ module.exports = function (grunt) {
 
 	grunt.file.setBase('../');
 	const selfPath = '_formantComponentLibBundler-master';
+	const coreBundlerPath = '_formantCoreBundler-master/';
 	const projectPath = 'tasks';
 	const destPath = 'build';
 
@@ -55,7 +56,7 @@ module.exports = function (grunt) {
 	});
 	configPath.push(path.join(process.cwd(), selfPath + '/' + projectPath));
 	browserifyPath.push(basePath);
-	browserifyPath.push('_frameworkCoreBuild/' + destPath);
+	browserifyPath.push(coreBundlerPath + destPath);
 	
 	var pkg = grunt.file.readJSON(selfPath + '/package.json');
 	pkg.main = path.join(process.cwd(), selfPath + '/src/main.js');
