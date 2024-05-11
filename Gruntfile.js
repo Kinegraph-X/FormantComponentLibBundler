@@ -23,7 +23,7 @@ module.exports = function (grunt) {
 		basePath,
 		currentBundle = 'formant', 
 		pathToComponentLib = rootPath + 'jsComponentLib',
-		buildDeployPath = 'formant-build';
+		buildDeployPath = 'node_modules/formantjs';
 	
 	currentName = grunt.cli.options.name;
 	
