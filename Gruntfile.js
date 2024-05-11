@@ -17,9 +17,9 @@ module.exports = function (grunt) {
 	const coreBundlerPath = '_formantCoreBundler-master/';
 	const projectPath = 'tasks';
 	const destPath = 'build';
-
+	
 	var rootPath = 'codebase/', 
-		gruntFilesPath = '_Grunt_files/',
+		gruntFilesPath = selfPath + '/_Grunt_files/',
 		basePath,
 		currentBundle = 'formant', 
 		pathToComponentLib = rootPath + 'jsComponentLib',
@@ -32,7 +32,7 @@ module.exports = function (grunt) {
 			console.error('executing the "newComponent" task requires passing a "name" parameter to the CLI');
 			return;
 		}
-		basePath = rootPath + gruntFilesPath + '_componentInLib/';
+		basePath = gruntFilesPath + '_componentInLib/';
 		require("grunt-load-gruntfile")(grunt,{requireResolution: true});
 		grunt.loadGruntfile(basePath);
 		return;
