@@ -13,7 +13,7 @@ module.exports = function(grunt, options) {
 					debug: true,
 					paths : options.browserifyPath,
 					standalone : 'formant',
-					noparse : '_frameworkCoreBuild/build/formantCore.js'
+					noparse : '_formantCoreBundler-master/build/formantCore.js'
 				},
 				configure : function(browserifyInstance) {
 //					console.log(grunt.config.data.UIvalidatorsList);	

@@ -15,10 +15,11 @@ for (let type in componentLib) {
 for (let type in validators) {
 	formantCore.validators[type] = _dereq_(validators[type]);
 }
+formantCore.App.localComponentTypes = {};
 const dependancyInjector = _dereq_('src/secondaryAppLauncher/dependancyInjector');
 
 module.exports = formantCore;
-},{"formantCore":2,"src/_buildTools/_UIpackages":39,"src/secondaryAppLauncher/dependancyInjector":38}],2:[function(_dereq_,module,exports){
+},{"formantCore":2,"src/_buildTools/_UIpackages":38,"src/secondaryAppLauncher/dependancyInjector":39}],2:[function(_dereq_,module,exports){
 "use strict";
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.formantCore = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof _dereq_&&_dereq_;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof _dereq_&&_dereq_,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(_dereq_,module,exports){
 "use strict";
@@ -772,14 +773,13 @@ module.exports = SpecialDependencyInjector;
 //		window = global;
 //}
 
-// TODO : Should not polute the namespace of this function : think seriously of removing the affectation to vars, as we only need to "execute" the require
 
 if (typeof Object.getOwnPropertyDescriptor(String.prototype, 'escapeRegExp') === 'undefined') { 
-	var Str = _dereq_('src/extendedNative/string');
-	var Arr = _dereq_('src/extendedNative/array');
-	var Bool = _dereq_('src/extendedNative/boolean');
-	var Obj = _dereq_('src/extendedNative/object');
-	var Regex = _dereq_('src/extendedNative/regexp');
+	_dereq_('src/extendedNative/string');
+	_dereq_('src/extendedNative/array');
+	_dereq_('src/extendedNative/boolean');
+	_dereq_('src/extendedNative/object');
+	_dereq_('src/extendedNative/regexp');
 }
 var Validate = _dereq_('src/integrated_libs_&_forks/Validate');
 var Hamster = _dereq_('src/integrated_libs_&_forks/Hamster');
@@ -1218,6 +1218,41 @@ var ComponentPickingInputDef = function(uniqueID, options, model) {
 	// Some CSS stuff (styles are directly injected in the main def below)
 	/**@CSSifySlots placeholder */
 
+	var hostStyles = [
+
+	{
+		"selector": ":host, div",
+		"boxSizing": "border-box",
+		"background": "none",
+		"border": "0",
+		"boxShadow": "none",
+		"margin": "0",
+		"outline": "0",
+		"padding": "0",
+		"verticalAlign": "baseline"
+	},
+	{
+		"selector": ":host",
+		"display": "flex",
+		"flex": "1 1 0",
+		"alignItems": "center",
+		"justifyContent": "space-between",
+		"border": "1px solid #383838",
+		"margin": "2px",
+		"padding": "3px",
+		"borderRadius": "2px"
+	},
+	{
+		"selector": "label",
+		"padding": "2px 7px"
+	}
+
+	];
+	var hostStylesUseCache = {
+		use : false,
+		nameInCache : 'ComponentPickingInputHostStyles'
+	}
+
 	var buttonStyles = [
 
 	{
@@ -1252,41 +1287,6 @@ var ComponentPickingInputDef = function(uniqueID, options, model) {
 	var buttonStylesUseCache = {
 		use : false,
 		nameInCache : 'ComponentPickingInputButtonStyles'
-	}
-
-	var hostStyles = [
-
-	{
-		"selector": ":host, div",
-		"boxSizing": "border-box",
-		"background": "none",
-		"border": "0",
-		"boxShadow": "none",
-		"margin": "0",
-		"outline": "0",
-		"padding": "0",
-		"verticalAlign": "baseline"
-	},
-	{
-		"selector": ":host",
-		"display": "flex",
-		"flex": "1 1 0",
-		"alignItems": "center",
-		"justifyContent": "space-between",
-		"border": "1px solid #383838",
-		"margin": "2px",
-		"padding": "3px",
-		"borderRadius": "2px"
-	},
-	{
-		"selector": "label",
-		"padding": "2px 7px"
-	}
-
-	];
-	var hostStylesUseCache = {
-		use : false,
-		nameInCache : 'ComponentPickingInputHostStyles'
 	}
 	
 	
@@ -3117,7 +3117,7 @@ Ignition.prototype = {};
 Ignition.prototype.objectType = 'Ignition'; 
 
 Ignition.prototype.decorateComponentsThroughDefinitionsCache = function(listDef) {
-	
+//	console.log('decorateComponentsThroughDefinitionsCache');
 	// instanciate DOM objects through cloning : DOM attributes are always static
 	// 					=> iterate on the "views" register
 	if (typeof document !== 'undefined' && typeof document.ownerDocument !== 'undefined')
@@ -3154,18 +3154,19 @@ Ignition.prototype.instanciateDOM = function() {
 		cloneMother,
 		effectiveViewAPI,
 		masterNode;
-
+	
 	views.forEach(function(view, key) {
 		attributes = attributesCache[view._defUID];
 		effectiveViewAPI = view.currentViewAPI;
 		
+//		console.log(view);
 		if (nodes[view._defUID].cloneMother) {
 			view.callCurrentViewAPI('setMasterNode', nodes[view._defUID].cloneMother.cloneNode(true));
 			Object.assign(view.callCurrentViewAPI('getMasterNode'), elementDecorator_OffsetProp);
 		}
 		else {
 			nodes[view._defUID].cloneMother = ElementCreator.createElement(nodes[view._defUID].nodeName, nodes[view._defUID].isCustomElem, Registries.caches.states.cache[view._defUID]);
-
+			
 			alreadyCloned = false;
 			cloneMother = nodes[view._defUID].cloneMother;
 			attributes.forEach(function(attrObject) {
@@ -3547,7 +3548,7 @@ DelayedDecoration.prototype.objectType = 'DelayedDecoration';
  * @param {HierarchicalDefinition} componentListHostDef : an optional definition for a list of components to be instanciaded /!\ RESEVERD for the Dataset Type
  */
 const renderDOM = function(containerSelector, component, componentListHostDef) {
-	const app = new Ignition()
+	const app = new Ignition();
 	app.decorateComponentsThroughDefinitionsCache(componentListHostDef);
 	
 	if (componentListHostDef)
@@ -3555,7 +3556,7 @@ const renderDOM = function(containerSelector, component, componentListHostDef) {
 	
 	if (typeof containerSelector !== 'string')
 		return component;
-
+	
 	document.querySelector(containerSelector).appendChild(component.view.getMasterNode());
 }
 
@@ -4180,20 +4181,6 @@ HierarchicalObject.prototype.overrideParent = function (Idx) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * @constructor ExtensibleObject
  */
@@ -4394,16 +4381,6 @@ ExtensibleObject.prototype.onExtend = function(namespace) {
 	if (!(namespace.prototype.hasOwnProperty('_asyncRegisterTasks')))
 		namespace.prototype._asyncRegisterTasks = [];
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4653,6 +4630,12 @@ var ComponentWithView = function(definition, parentView, parent, isChildOfRoot) 
 		definition = TypeManager.mockDef();
 //		definition.getHostDef().nodeName = 'dummy';
 	}
+	else if (!definition) {
+		console.warn('A Component received an undefined definition, maybe you wanted to explicitely pass a null definition ? '
+			+ 'The type is ' + Object.getPrototypeOf(this).objectType + ' '
+			+ '(this check is here to enforce good practices)');
+		return;
+	}
 	
 //	console.log(definition);
 	ComponentWithObservables.call(this, definition, parentView, parent);
@@ -4699,8 +4682,8 @@ ComponentWithView.prototype.instanciateView = function(definition, parentView, p
 ComponentWithView.prototype.setContentFromValueOnView = function(value) {
 	if (typeof value !== 'string' && isNaN(parseInt(value)))
 		return;
-	if (this.view.getWrappingNode().childNodes.length)
-		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
+//	if (this.view.getWrappingNode().childNodes.length)
+//		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
 	this.view.value = value.toString();		// this.view.value is a "special" setter: it sets textContent OR value, based on the effective node
 };
 
@@ -4708,8 +4691,8 @@ ComponentWithView.prototype.setContentFromValueOnView = function(value) {
  * @abstract
  */
 ComponentWithView.prototype.setContentFromValueOnMemberView = function(value, memberViewIdx) {
-	if (this.view.subViewsHolder.memberAt(memberViewIdx).getWrappingNode().childNodes.length)
-		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
+//	if (this.view.subViewsHolder.memberAt(memberViewIdx).getWrappingNode().childNodes.length)
+//		console.warn('setContentFromValueOnView : replacing the content of a node that already has content. Value is :', value)
 	this.view.subViewsHolder.memberAt(memberViewIdx).setContentNoFail(value.toString());		// this.view.value is a "special" setter: it sets textContent OR value, based on the effective node
 };
 
@@ -5619,6 +5602,8 @@ const CompoundComponent = function(definition, parentView, parent, isChildOfRoot
 	this._firstListUIDSeen = null;
 	var shouldExtend = false;
 	
+	
+	
 	if (!definition.getGroupHostDef())
 		console.error('Definition given to CompoundComponent isn\'t a nested HierachicalDefinition.', definition, 'Type is:', definition.getHostDef().type, this);
 		
@@ -5669,7 +5654,7 @@ const CompoundComponent = function(definition, parentView, parent, isChildOfRoot
 	if (shouldExtend)
 		this.extendDefinition(definition);
 	
-	var defaultDef = this.createDefaultDef();
+	var defaultDef = this.createDefaultDef(definition.getHostDef());
 	
 	// When instanciating a CompoundComponent directly from its ctor,  there is no defaultDef : don't try to merge
 	if (defaultDef) {
@@ -5732,6 +5717,7 @@ CompoundComponent.prototype.instanciateSubSections = function(definition) {
 
 CompoundComponent.prototype.instanciateMembers = function(definition) {
 //	console.log(definition.members);
+//	console.log(this.view);
 	var type;
 	definition.members.forEach(function(memberDef) {
 		if (!memberDef.getHostDef && (memberDef.nodeName || memberDef.type)) {
@@ -5743,7 +5729,6 @@ CompoundComponent.prototype.instanciateMembers = function(definition) {
 		//			console.log(type, type in Components, Components);
 //		console.log(type);
 		if (type in Components && type !== 'CompoundComponent') {
-//			console.log(definition);
 			new Components[type](memberDef, this.view, this);
 		}
 		else if (memberDef.getGroupHostDef()) {
@@ -6622,6 +6607,7 @@ Components.CompositorComponent.prototype.acquireCompositor = function(inheriting
 	if (inheritedType in Components || inheritedType in coreComponents) {
 		var objectType = inheritingType.prototype.objectType;
 		inheritingType.prototype.Compositor = coreComponents[inheritedType];
+//		console.log(inheritingType.prototype.Compositor);
 		//		console.log(Object.create(coreComponents[inheritedType].prototype));
 		//		console.log(Components.ExtensibleObject.prototype.mergeOwnProperties(true, Object.create(coreComponents[inheritedType].prototype), inheritingType.prototype));
 		inheritingType.prototype = Components.ExtensibleObject.prototype.mergeOwnProperties(true, Object.create(coreComponents[inheritedType].prototype), inheritingType.prototype);
@@ -6635,21 +6621,35 @@ Components.CompositorComponent.prototype.acquireCompositor = function(inheriting
 
 Components.CompositorComponent.createAppLevelExtendedComponent = function() {
 	var extension2ndPass = {};
+//	console.error(typeof Components.GradientGenerator);
 	for (var componentType in Components) {
-//		console.log(Components[componentType].prototype.hasOwnProperty('extendsCore'), componentType, Components[componentType]);
-
+		if (Components[componentType].hasOwnProperty('dependancyInjectionDone'))
+			continue;
 		// An automatically included component may not really be a component : we have a "special" category that we also include
 		if (typeof Components[componentType].prototype === 'undefined')
-			continue;		 
+			continue;
+			
+//		console.log(componentType, typeof Components[componentType].prototype, Components[componentType].prototype.hasOwnProperty('extendsCore'));
+//		if (!Components[componentType].prototype.hasOwnProperty('extendsCore'))
+//			console.log(Components[componentType].prototype);
+//		console.log(Components[componentType].prototype.hasOwnProperty('extendsCore'), componentType, Components[componentType]);
+				 
 		if (Components[componentType].prototype.hasOwnProperty('extendsCore')) {
 //			console.log(Components[componentType]);
 			Components.CompositorComponent.prototype.acquireCompositor(Components[componentType], Components[componentType].prototype.extendsCore);
+			Components[componentType].dependancyInjectionDone = true;
 		}
-		else if (Components[componentType].prototype.hasOwnProperty('extends'))
+		else if (Components[componentType].prototype.hasOwnProperty('extends')) {
 			extension2ndPass[componentType] = Components[componentType];
+		}
+			
+		
 	}
 	for (var componentType in extension2ndPass) {
+		if (Components[componentType].hasOwnProperty('dependancyInjectionDone'))
+			continue;
 		Components.CompositorComponent.prototype.extendFromCompositor(Components[componentType], Components[Components[componentType].prototype.extends]);
+		Components[componentType].dependancyInjectionDone = true;
 	}
 }
 
@@ -8523,6 +8523,7 @@ var ComponentView = function(definition, parentView, parent, isChildOfRoot) {
 		return;
 	}
 	else if (!(parentView instanceof ComponentView) && def.nodeName !== 'app-root') {
+//		console.log(parentView, ComponentView);
 		console.warn('no parentView given to a componentView : nodeName is', def.nodeName, '& type is', def.type);
 	}
 		
@@ -11922,7 +11923,9 @@ Object.assign(exportedObjects, {
 	propsAreArray : propsAreArray,									// Array
 	reactivityQueries : reactivityQueries,							// Array
 	eventQueries : eventQueries,									// Array
-	propsArePrimitives : propsArePrimitives							// Array
+	propsArePrimitives : propsArePrimitives,						// Array
+	HierarchicalTemplate : HierarchicalComponentDefModel,
+	ViewTemplate : SingleLevelComponentDefModel
 });
 
 
@@ -17902,6 +17905,18 @@ CSSPropertyBuffer.prototype.functionToCanonical = function(valueAsParsed) {
 			value.repr += '")';
 			return value;
 		}
+		else if (valueAsParsed.name === 'translate' || valueAsParsed.name === 'rotate' || valueAsParsed.name === 'scale') {
+			value = new (LocalTokenFromParserFactory(null, 'TRANSFORM'))();
+			value.type = valueAsParsed.name;
+			value.repr = valueAsParsed.name + '(';
+			valueAsParsed.value.forEach(function(val, key) {
+				value.repr += val.repr;
+				if (key < valueAsParsed.value.length - 1)
+					value.repr += ', ';
+			});
+			value.repr += ')';
+			return value;
+		}
 		
 		console.warn('CSSPropertyBuffer->functionToCanonical: unsupported function given (' + valueAsParsed.name + ').');
 		return new (LocalTokenFromParserFactory(null, 'UNDEFINED'))();
@@ -18574,7 +18589,9 @@ SplittedCSSPropertyDescriptors.boxModelAttributes = {
 	borderStartStartRadius : CSSPropertyDescriptorFactory('borderStartStartRadius', '', false, [], false, false),
 	borderEndStartRadius : CSSPropertyDescriptorFactory('borderEndStartRadius', '', false, [], false, false),
 	borderEndEndRadius : CSSPropertyDescriptorFactory('borderEndEndRadius', '', false, [], false, false),
-	borderStartEndRadius : CSSPropertyDescriptorFactory('borderStartEndRadius', '', false, [], false)
+	borderStartEndRadius : CSSPropertyDescriptorFactory('borderStartEndRadius', '', false, [], false),
+	
+	transform : CSSPropertyDescriptorFactory('transform', '', false, [], false)
 }
 
 SplittedCSSPropertyDescriptors.strictlyLocalAttributes = {
@@ -21104,12 +21121,12 @@ module.exports = StyleRule;
 
 },{}],3:[function(_dereq_,module,exports){
 "use strict";
-module.exports = (function() {return {"_configurationFiles":["_arias&glyphsDef.js"],"_recentlyCreated":[],"basics":["AbstractSlider","ClickableComponent","GenericTitledPanelComponent","InnerReactiveComponent","KeyValuePairComponent","MultisetAccordionComponent","SimpleText","SimpleTextReplace","SpecializedTypedListComponent","Tooltip","TypedListComponent","VisibleStateComponent"],"forms":["BoolSelector","CancelButton","CheckboxInput","EMailInput","Fieldset","FormComponent","LabelledButton","NamedButton","PasswordInput","SubmitButton","TextInput","TextareaInput","UsernameInput"],"lists":[],"specials":["SourceCodeViewCleanerRouter.js","SourceCodeViewRouter.js","SourceCodeViewRouterForExternalSources.js","SourceInjectionUtility.js"],"tables":["ExtensibleTable"],"tabs":["ComponentTabPanel","TabPanel"],"trees":[],"utilities":["SpinnerComponent"],"validators":["apipasswordInputDef.js","emailInputDef.js","filenameInputDef.js","mapcontentInputDef.js","passwordInputDef.js","usernameInputDef.js"]};})();
+module.exports = (function() {return {"_configurationFiles":["_arias&glyphsDef.js"],"_recentlyCreated":[],"basics":["AbstractSlider","ClickableComponent","GenericTitledPanelComponent","InnerReactiveComponent","KeyValuePairComponent","MultisetAccordionComponent","SimpleText","SimpleTextReplace","SpecializedTypedListComponent","Tooltip","TypedListComponent","VisibleStateComponent"],"forms":["BoolSelector","CancelButton","CheckboxInput","ColorPickerSliderInput","EMailInput","Fieldset","FormComponent","LabelledButton","NamedButton","PasswordInput","SubmitButton","TextInput","TextareaInput","UsernameInput"],"specials":["SourceCodeViewCleanerRouter.js","SourceCodeViewRouter.js","SourceCodeViewRouterForExternalSources.js","SourceInjectionUtility.js"],"tables":["ExtensibleTable"],"tabs":["ComponentTabPanel","TabPanel"],"trees":[],"utilities":["SpinnerComponent"],"validators":["apipasswordInputDef.js","emailInputDef.js","filenameInputDef.js","mapcontentInputDef.js","passwordInputDef.js","usernameInputDef.js"]};})();
 },{}],4:[function(_dereq_,module,exports){
 "use strict";
 module.exports = (function() {return ["apipasswordInputDef.js","emailInputDef.js","filenameInputDef.js","mapcontentInputDef.js","passwordInputDef.js","usernameInputDef.js"];})();
 },{}],5:[function(_dereq_,module,exports){
-module.exports = "\"use strict\";\n/* PrismJS 1.29.0\r\nhttps://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+clike+javascript */\r\ncode[class*=language-],pre[class*=language-]{color:#ccc;background:0 0;font-family:Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;font-size:1em;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:0;min-width: 1080px;width: 0px; overflow:auto}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}\r\n";
+module.exports = "\"use strict\";\n/* PrismJS 1.29.0\r\nhttps://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+clike+javascript */\r\ncode[class*=language-],pre[class*=language-]{color:#ccc;background:0 0;font-family:Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;font-size:1em;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:0;min-width: 1080px;width: 0px; overflow:auto}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d; color : #f6f7f9;}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}\r\n";
 
 },{}],6:[function(_dereq_,module,exports){
 "use strict";
@@ -22748,6 +22765,10 @@ const tabPanelDef = function(uniqueID, options, model) {
 		"cursor": "pointer"
 	},
 	{
+		"selector": ":host",
+		"backgroundColor": "#282828"
+	},
+	{
 		"selector": ":host tab-header[highlighted]",
 		"backgroundColor": "#555"
 	}
@@ -22937,30 +22958,6 @@ module.exports = SpinnerComponent;
 
 },{"formantCore":2}],38:[function(_dereq_,module,exports){
 "use strict";
-const {App, Components, ReactiveDataset, ComponentSet} = _dereq_('formantCore');
-
-// Components relying on core components
-Components.CompositorComponent.createAppLevelExtendedComponent();
-
-//temporary tests during the re-organisation of the component-lib
-if (typeof App.componentTypes.KeyValueList !== 'undefined')
-	App.componentTypes.KeyValueList.prototype.render = function(DOMNodeId) {
-		new App.DelayedDecoration(DOMNodeId, this, this.listTemplate.getHostDef());
-	};
-if (typeof App.componentTypes.ScrollSlider !== 'undefined')
-	App.componentTypes.ScrollSlider.prototype.render = function(DOMNodeId) {
-		new App.DelayedDecoration(DOMNodeId, this);
-	};
-if (typeof App.componentTypes.SlidingPanel !== 'undefined')
-	App.componentTypes.SlidingPanel.prototype.render = function(DOMNodeId) {
-		new App.DelayedDecoration(DOMNodeId, this);
-	};
-if (typeof App.componentTypes.ImgPlaceholder !== 'undefined')
-	App.componentTypes.ImgPlaceholder.prototype.render = function(DOMNodeId) {
-		new App.DelayedDecoration(DOMNodeId, this);
-	};
-},{"formantCore":2}],39:[function(_dereq_,module,exports){
-"use strict";
 /**
  * @indexer UIpackageList
  * 
@@ -22969,14 +22966,8 @@ if (typeof App.componentTypes.ImgPlaceholder !== 'undefined')
 const fs  = _dereq_('fs');
 
 module.exports = function(grunt, options) {
-	
 	var categories = {
-//			none : [],
-//			minimal : ['minimal'],		// minimal bundling is broken, don't use until big fix
-//			special : ['special'],
-//			video : ['video'],
-//			std : ['minimal', 'boxes', 'panels', 'structs', 'titles'],
-			all : ['basics', 'forms', 'lists', 'tables', 'tabs', 'trees', 'specials']
+		all : ['basics', 'forms', 'tables', 'tabs', 'trees', 'specials']
 	}
 	
 	options = options || {};
@@ -23004,8 +22995,8 @@ module.exports = function(grunt, options) {
 		var prefix = 'module.exports = (function() {return ',
 			postfix = ';})();';
 		
-		grunt.file.write(grunt.config.data.pathToProject + 'cache/UIpackagesFolderCache.js', prefix + JSON.stringify(packageTree) + postfix);
-		grunt.file.write(grunt.config.data.pathToProject + 'cache/UIvalidatorsFileCache.js', prefix + JSON.stringify(validatorTree) + postfix);
+		grunt.file.write(grunt.config.data.pathToComponentLib + '/cache/UIpackagesFolderCache.js', prefix + JSON.stringify(packageTree) + postfix);
+		grunt.file.write(grunt.config.data.pathToComponentLib + '/cache/UIvalidatorsFileCache.js', prefix + JSON.stringify(validatorTree) + postfix);
 	}
 	// if (fs.existsSync('cache/UIpackagesFolderCache.js') && fs.existsSync('cache/UIvalidatorsFileCache.js'))
 	else  {
@@ -23021,6 +23012,9 @@ module.exports = function(grunt, options) {
 	// some files call this helper to get the list of validators and pass null as UIpackage
 	if (typeof categories[options.UIpackage] !== 'undefined') {
 		categories[options.UIpackage].forEach(function(dir) {
+			// case of empty folders
+			if (!packageTree[dir])
+				return;
 			options.UIpackageList = options.UIpackageList.concat(
 					packageTree[dir].map(function(item) {
 						path = '';
@@ -23046,7 +23040,31 @@ module.exports = function(grunt, options) {
 		return {packageList : UIpackageList, validatorList : UIvalidatorList};
 
 };
-},{"cache/UIpackagesFolderCache":3,"cache/UIvalidatorsFileCache":4,"fs":40}],40:[function(_dereq_,module,exports){
+},{"cache/UIpackagesFolderCache":3,"cache/UIvalidatorsFileCache":4,"fs":40}],39:[function(_dereq_,module,exports){
+"use strict";
+const {App, Components, ReactiveDataset, ComponentSet} = _dereq_('formantCore');
+
+// Components relying on core components
+Components.CompositorComponent.createAppLevelExtendedComponent();
+
+//temporary tests during the re-organisation of the component-lib
+if (typeof App.componentTypes.KeyValueList !== 'undefined')
+	App.componentTypes.KeyValueList.prototype.render = function(DOMNodeId) {
+		new App.DelayedDecoration(DOMNodeId, this, this.listTemplate.getHostDef());
+	};
+if (typeof App.componentTypes.ScrollSlider !== 'undefined')
+	App.componentTypes.ScrollSlider.prototype.render = function(DOMNodeId) {
+		new App.DelayedDecoration(DOMNodeId, this);
+	};
+if (typeof App.componentTypes.SlidingPanel !== 'undefined')
+	App.componentTypes.SlidingPanel.prototype.render = function(DOMNodeId) {
+		new App.DelayedDecoration(DOMNodeId, this);
+	};
+if (typeof App.componentTypes.ImgPlaceholder !== 'undefined')
+	App.componentTypes.ImgPlaceholder.prototype.render = function(DOMNodeId) {
+		new App.DelayedDecoration(DOMNodeId, this);
+	};
+},{"formantCore":2}],40:[function(_dereq_,module,exports){
 
 },{}],"src/UI/categories/basics/AbstractSlider/AbstractSlider.js":[function(_dereq_,module,exports){
 "use strict";
@@ -24501,7 +24519,170 @@ CheckboxInput.prototype.setValue = function(value) {
 
 
 module.exports = CheckboxInput;
-},{"formantCore":2,"src/UI/_interfaces/labelledCheckboxInputInterface":7,"src/UI/_interfaces/locallySavableInputInterface":11,"src/UI/categories/forms/CheckboxInput/componentDefs/checkboxInputDef":26}],"src/UI/categories/forms/EMailInput/EMailInput.js":[function(_dereq_,module,exports){
+},{"formantCore":2,"src/UI/_interfaces/labelledCheckboxInputInterface":7,"src/UI/_interfaces/locallySavableInputInterface":11,"src/UI/categories/forms/CheckboxInput/componentDefs/checkboxInputDef":26}],"src/UI/categories/forms/ColorPickerSliderInput/ColorPickerSliderInput.js":[function(_dereq_,module,exports){
+"use strict";
+/**
+ * @constructor ColorPickerSliderInput
+*/
+
+const {TemplateFactory, CreateStyle, Components} = _dereq_('formantCore');
+
+const ColorPickerSliderInput = function(definition, parentView) {
+	const def = definition || null;
+	Components.ComponentWithHooks.call(this, def, parentView);
+	this.objectType = 'ColorPickerSliderInput';
+	
+	this.absolutLeft = 0;
+	this.xMin = definition.options.xMin || 0;
+	this.xMax = definition.options.xMax || 400;
+	this.leftOffset = definition.options.initialLeft || 0;
+	this.initialClickOffset = 0;
+}
+ColorPickerSliderInput.prototype = Object.create(Components.ComponentWithHooks.prototype);
+ColorPickerSliderInput.prototype.objectType = 'ColorPickerSliderInput';
+
+ColorPickerSliderInput.prototype.createDefaultDef = function() {
+	return TemplateFactory.createDef({
+		host: TemplateFactory.createDef({
+			nodeName: 'triangle-colorpicker',
+			props : [
+				{
+					currentColor : undefined
+				}
+			],
+			reactOnSelf : [
+				{
+					from : 'currentColor',
+					cbOnly: true,
+					subscribe : function(value) {
+						this.view.subViewsHolder.memberViews[1].getMasterNode().value = value;
+						this.view.subViewsHolder.memberViews[2].getMasterNode().textContent = value;
+						this.trigger('update', {type : 'colorChanged', value : value, key : this._key}, true);
+					}
+				}
+			],
+			sWrapper: CreateStyle([
+				{
+					selector: ':host',
+					color : '#999',
+					position : 'absolute',
+					top : '0',
+					display : 'flex',
+					alignItems : 'center',
+					fontSize : '14px',
+					marginTop : '-22px'
+				},
+				{
+					selector: ':host div',
+					display : 'inline-block'
+				},
+				{
+					selector: ':host div:nth-child(4)',
+					display : 'inline-block',
+					marginTop : '-42px',
+					marginLeft : '4px'
+				},
+				{
+					selector: ':host div.arrow',
+					height: '0',
+					width: '0',
+					borderTop: '22px #ED2 solid',
+					borderRight: '8px #00000000 solid',
+					borderLeft: '8px #00000000 solid',
+					cursor : 'pointer'
+				},
+				{
+					selector: ':host input[type="color"]',
+					border: '1px #AAA solid',
+					padding: '0',
+					width: '16px',
+					height: '16px',
+					margin : '-42px 0px 0px -16px',
+					outline: 'none'
+				},
+				{
+					selector : ':host input[type="color"]::-webkit-color-swatch',
+					border : '0',
+					padding : '0'
+				},
+				{
+					selector : ':host input[type="color"]::-webkit-color-swatch-wrapper',
+					border : '0',
+					padding : '0'
+				}
+			])
+		}),
+		members: [
+			TemplateFactory.createDef({
+				nodeName: 'div',
+				attributes : [
+					{className : 'arrow'}
+				]
+			}),
+			TemplateFactory.createDef({
+				nodeName: 'input',
+				attributes: [
+					{ 'type': 'color' }
+				]
+			}),
+			/* displays the value of the color-picker */
+			TemplateFactory.createDef({
+				nodeName: 'div'
+			})
+		]
+	})
+}
+
+ColorPickerSliderInput.prototype._asyncRegisterTasks = [];
+ColorPickerSliderInput.prototype._asyncRegisterTasks.push(new TemplateFactory.TaskDefinitionModel({
+	type : 'lateBinding',
+	task : function() {
+		this.view.getMasterNode().style.left = this.absolutLeft + this.leftOffset + 'px';
+		this.view.getMasterNode().style.transform = 'translate(-8px)';
+	}
+}));
+
+ColorPickerSliderInput.prototype.registerClickEvents = function() {
+	this.view.subViewsHolder.memberViews[1].getMasterNode().addEventListener('input', function(e) {
+		this.view.subViewsHolder.memberViews[2].getMasterNode().textContent = e.target.value;
+		this.trigger('update', {type : 'colorChanged', value : e.target.value, key : this._key}, true);
+	}.bind(this));
+	
+	// listening to the pointer and capturing the pointer isn't needed
+	// (the bug we had came from the parent element being out of flow due to its absolute positionning)
+	// thoug, it seems to be a good practice
+	// TODO: convert every mouse events to pointer events in the framework, as mouse events may not be correctly handled on mobile
+	this.view.subViewsHolder.memberViews[0].getMasterNode().addEventListener('pointerdown', function(e) {
+		e.target.setPointerCapture(e.pointerId);
+		this.initialClickOffset = e.clientX - this.absolutLeft - this.leftOffset;
+		this.handleDrag.call(this);
+	}.bind(this))
+}
+
+ColorPickerSliderInput.prototype.handleDrag = function() {
+	const dragHandler = this.dragHandler.bind(this);
+	document.body.addEventListener('pointermove', dragHandler);
+	document.body.addEventListener('pointerup', function(e) {
+		e.target.releasePointerCapture(e.pointerId);
+		this.leftOffset = parseInt(this.view.getMasterNode().style.left.slice(0, -2));
+		document.body.removeEventListener('pointermove', dragHandler);
+	}.bind(this));
+}
+
+ColorPickerSliderInput.prototype.dragHandler = function(e) {
+	const moveOffset = e.clientX - this.initialClickOffset - this.absolutLeft;
+	if (moveOffset < this.xMax && moveOffset > this.xMin) {
+		this.view.getMasterNode().style.left = this.absolutLeft + moveOffset + 'px';
+		this.trigger('update', {type : 'positionChanged', value : Math.round(moveOffset * 100 / this.xMax), key : this._key}, true);
+	}
+}
+
+
+
+
+
+module.exports = ColorPickerSliderInput;
+},{"formantCore":2}],"src/UI/categories/forms/EMailInput/EMailInput.js":[function(_dereq_,module,exports){
 "use strict";
 /**
  * @constructor EMailInput

@@ -75,7 +75,7 @@ module.exports = function (grunt) {
 			browserifyPath : browserifyPath,
 			UIpackage : bundleConfig.UIpackage,
 			destPath : selfPath + '/' + destPath,
-			exorciseRootPath : '_frameworkCoreBuild/' + destPath,
+			exorciseRootPath : coreBundlerPath + destPath,
 			buildDeployPath : buildDeployPath
 		},
 		postProcess : function (config) {
